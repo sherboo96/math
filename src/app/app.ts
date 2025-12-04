@@ -50,7 +50,11 @@ export class App {
     }
   }
 
-  closePreview(): void {
+  closePreview(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     this.selectedPdf.set(null);
     this.selectedPdfTitle.set(null);
     this.safePreviewUrl.set(null);

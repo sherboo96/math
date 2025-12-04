@@ -1,5 +1,31 @@
-<main dir="rtl" class="min-h-screen bg-white px-4 py-8 flex justify-center">
-  <section class="w-full max-w-6xl">
+<main dir="rtl" class="min-h-screen bg-white px-4 py-8 flex justify-center relative overflow-hidden">
+  <!-- Animated Math Shapes Background -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <!-- Circle shapes -->
+    <div class="math-shape circle absolute top-20 left-10 w-16 h-16 bg-teal-100/30 rounded-full"></div>
+    <div class="math-shape circle absolute top-40 right-20 w-12 h-12 bg-teal-200/20 rounded-full"></div>
+    <div class="math-shape circle absolute bottom-32 left-32 w-20 h-20 bg-teal-100/25 rounded-full"></div>
+    <div class="math-shape circle absolute bottom-20 right-40 w-14 h-14 bg-teal-200/30 rounded-full"></div>
+    
+    <!-- Square shapes -->
+    <div class="math-shape square absolute top-60 left-24 w-10 h-10 bg-teal-100/20 rotate-45"></div>
+    <div class="math-shape square absolute top-80 right-60 w-8 h-8 bg-teal-200/25 rotate-45"></div>
+    <div class="math-shape square absolute bottom-60 left-60 w-12 h-12 bg-teal-100/30 rotate-45"></div>
+    
+    <!-- Triangle shapes -->
+    <div class="math-shape triangle absolute top-32 right-32 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[20px] border-b-teal-100/30"></div>
+    <div class="math-shape triangle absolute bottom-40 left-20 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[16px] border-b-teal-200/25"></div>
+    
+    <!-- Math symbols -->
+    <div class="math-shape symbol absolute top-48 left-16 text-3xl text-teal-200/20 font-bold">π</div>
+    <div class="math-shape symbol absolute top-72 right-16 text-2xl text-teal-100/25 font-bold">+</div>
+    <div class="math-shape symbol absolute bottom-48 left-48 text-2xl text-teal-200/20 font-bold">×</div>
+    <div class="math-shape symbol absolute bottom-72 right-32 text-3xl text-teal-100/30 font-bold">÷</div>
+    <div class="math-shape symbol absolute top-96 left-40 text-2xl text-teal-200/25 font-bold">∑</div>
+    <div class="math-shape symbol absolute bottom-96 right-16 text-2xl text-teal-100/20 font-bold">∫</div>
+  </div>
+  
+  <section class="w-full max-w-6xl relative z-10">
     <!-- Top logos bar -->
     <div class="mb-6 flex items-center justify-between">
       <img
@@ -376,7 +402,7 @@
           style="touch-action: pan-y;"
         >
           <!-- Modal header -->
-          <div class="flex items-center justify-between px-5 py-4 md:px-6 md:py-5 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+          <div class="flex items-center justify-between px-5 py-4 md:px-6 md:py-5 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white relative z-50" style="touch-action: manipulation;">
             <div class="flex items-center gap-3 min-w-0 flex-1">
               <div class="shrink-0 w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center">
                 <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -395,12 +421,14 @@
 
             <button
               type="button"
-              class="inline-flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 w-9 h-9 transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
-              (click)="closePreview()"
+              class="inline-flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 hover:text-slate-900 w-10 h-10 md:w-9 md:h-9 transition-all duration-200 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 z-50"
+              (click)="closePreview($event)"
+              (touchstart)="closePreview($event)"
+              style="touch-action: manipulation; -webkit-tap-highlight-color: transparent; cursor: pointer;"
               aria-label="إغلاق المعاينة"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              <svg class="w-6 h-6 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
           </div>
