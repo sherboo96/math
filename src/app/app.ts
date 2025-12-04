@@ -1,4 +1,4 @@
-import { Component, Inject, signal } from '@angular/core';
+import { Component, Inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
@@ -18,6 +18,9 @@ export class App {
   
   // Store scroll position before opening modal
   private scrollPosition = 0;
+  
+  // Reference to iframe element
+  @ViewChild('pdfIframe', { static: false }) pdfIframe?: ElementRef<HTMLIFrameElement>;
   
   // Google Drive file IDs
   private readonly googleDriveFiles = new Map<string, string>([
@@ -74,6 +77,9 @@ export class App {
       event.stopPropagation();
     }
     
+    // Kill Google Drive session by clearing iframe src
+    this.killDriveSession();
+    
     // Clear PDF data first
     this.selectedPdf.set(null);
     this.selectedPdfTitle.set(null);
@@ -106,6 +112,45 @@ export class App {
         this.scrollPosition = 0;
       }, 50);
     }, 0);
+  }
+
+  private killDriveSession(): void {
+    // Find and clear all iframes in the modal
+    const iframes = this.document.querySelectorAll('iframe[src*="drive.google.com"]');
+    iframes.forEach((iframe) => {
+      const htmlIframe = iframe as HTMLIFrameElement;
+      // Clear src to stop loading and kill session
+      htmlIframe.src = 'about:blank';
+      // Remove iframe from DOM
+      htmlIframe.remove();
+    });
+    
+    // Also try to access via ViewChild if available
+    if (this.pdfIframe?.nativeElement) {
+      try {
+        this.pdfIframe.nativeElement.src = 'about:blank';
+        // Clear content
+        const iframeDoc = this.pdfIframe.nativeElement.contentDocument || 
+                         this.pdfIframe.nativeElement.contentWindow?.document;
+        if (iframeDoc) {
+          iframeDoc.open();
+          iframeDoc.write('');
+          iframeDoc.close();
+        }
+      } catch (e) {
+        // Cross-origin restrictions may prevent access
+        // Just clearing src is enough
+      }
+    }
+    
+    // Force garbage collection hint (if available in dev tools)
+    if ('gc' in window && typeof (window as any).gc === 'function') {
+      try {
+        (window as any).gc();
+      } catch (e) {
+        // Ignore if not available
+      }
+    }
   }
 
   onPreviewLoaded(): void {
