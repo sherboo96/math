@@ -16,6 +16,9 @@ export class App {
   protected readonly safePreviewUrl = signal<SafeResourceUrl | null>(null);
   protected readonly previewLoading = signal<boolean>(true);
   
+  // Store scroll position before opening modal
+  private scrollPosition = 0;
+  
   // Google Drive file IDs
   private readonly googleDriveFiles = new Map<string, string>([
     ['annancement', '1l4YggnpEzepaCRrNwcjXB8CkZTum9lu-'],
@@ -37,6 +40,9 @@ export class App {
     
     const fileId = this.googleDriveFiles.get(fileKey);
     if (fileId) {
+      // Save current scroll position
+      this.scrollPosition = window.pageYOffset || this.document.documentElement.scrollTop;
+      
       this.selectedPdf.set(fileId);
       this.selectedPdfTitle.set(title);
       this.previewLoading.set(true);
@@ -46,7 +52,11 @@ export class App {
       this.safePreviewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(previewUrl));
       
       // Lock body scroll
+      this.document.body.classList.add('modal-open');
       this.document.body.style.overflow = 'hidden';
+      this.document.body.style.position = 'fixed';
+      this.document.body.style.width = '100%';
+      this.document.body.style.top = `-${this.scrollPosition}px`;
     }
   }
 
@@ -55,12 +65,26 @@ export class App {
       event.preventDefault();
       event.stopPropagation();
     }
+    
     this.selectedPdf.set(null);
     this.selectedPdfTitle.set(null);
     this.safePreviewUrl.set(null);
     this.previewLoading.set(false);
-    // Restore body scroll
+    
+    // Restore body scroll and remove all modal styles
+    this.document.body.classList.remove('modal-open');
     this.document.body.style.overflow = '';
+    this.document.body.style.position = '';
+    this.document.body.style.width = '';
+    this.document.body.style.top = '';
+    this.document.body.style.height = '';
+    this.document.body.style.left = '';
+    this.document.body.style.right = '';
+    this.document.body.style.bottom = '';
+    
+    // Restore scroll position
+    window.scrollTo(0, this.scrollPosition);
+    this.scrollPosition = 0;
   }
 
   onPreviewLoaded(): void {
