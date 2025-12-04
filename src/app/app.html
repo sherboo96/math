@@ -256,9 +256,9 @@
           </div>
 
           <!-- Modal body -->
-          <div class="relative flex-1 bg-white overflow-y-auto">
+          <div class="relative flex-1 bg-white overflow-hidden">
             @if (safePdfUrl()) {
-              <div class="relative w-full h-full">
+              <div class="relative w-full h-full overflow-auto" style="touch-action: pan-y pinch-zoom; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;">
                 @if (pdfLoading()) {
                   <div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/90">
                     <div class="mb-3 h-10 w-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
@@ -267,11 +267,16 @@
                     </p>
                   </div>
                 }
+                <!-- Use iframe with better mobile support -->
                 <iframe
-                  style="touch-action: pan-y;"
-                  class="w-full h-full border-0"
                   [src]="safePdfUrl()"
+                  type="application/pdf"
+                  class="w-full border-0"
+                  style="min-height: 100vh; display: block; touch-action: pan-y pinch-zoom;"
                   (load)="onPdfLoaded()"
+                  allowfullscreen
+                  webkitallowfullscreen
+                  mozallowfullscreen
                 ></iframe>
               </div>
             } @else {

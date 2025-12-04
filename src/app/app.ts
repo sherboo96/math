@@ -27,7 +27,9 @@ export class App {
   openPdf(path: string, title: string): void {
     this.selectedPdf.set(path);
     this.selectedPdfTitle.set(title);
-    this.safePdfUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(path));
+    // Add PDF viewer parameters for better mobile display
+    const pdfUrl = `${path}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
+    this.safePdfUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl));
     this.pdfLoading.set(true);
     this.toggleBodyScroll(true);
   }
