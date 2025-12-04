@@ -1,0 +1,41 @@
+/* PDF Preview Mobile Enhancements */
+@media (max-width: 768px) {
+  /* Prevent body scroll when PDF modal is open */
+  body.modal-open {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Improve PDF container scrolling on mobile */
+  object[type="application/pdf"],
+  iframe[type="application/pdf"] {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  /* Prevent horizontal scroll on mobile */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Smooth scrolling for PDF viewer */
+.pdf-viewer-container {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: none;
+}
+
+/* Prevent iOS bounce effect */
+@supports (-webkit-touch-callout: none) {
+  body.modal-open {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+}
+

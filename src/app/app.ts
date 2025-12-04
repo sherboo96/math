@@ -21,17 +21,26 @@ export class App {
   ) {}
 
   private toggleBodyScroll(locked: boolean): void {
-    this.document.body.style.overflow = locked ? 'hidden' : '';
+    if (locked) {
+      this.document.body.style.overflow = 'hidden';
+      this.document.body.classList.add('modal-open');
+    } else {
+      this.document.body.style.overflow = '';
+      this.document.body.classList.remove('modal-open');
+    }
   }
 
   openPdf(path: string, title: string): void {
     this.selectedPdf.set(path);
     this.selectedPdfTitle.set(title);
-    // Add PDF viewer parameters for better mobile display
-    const pdfUrl = `${path}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
+    // Add PDF viewer parameters optimized for mobile devices
+    // view=FitH: fit horizontally, zoom=page-width: better mobile viewing
+    const pdfUrl = `${path}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
     this.safePdfUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl));
     this.pdfLoading.set(true);
     this.toggleBodyScroll(true);
+    
+    // Prevent iOS bounce scrolling - handled by CSS class
   }
 
   closePdf(): void {
@@ -40,6 +49,8 @@ export class App {
     this.safePdfUrl.set(null);
     this.pdfLoading.set(false);
     this.toggleBodyScroll(false);
+    
+    // Body position restored by removing modal-open class
   }
 
   onPdfLoaded(): void {

@@ -229,10 +229,12 @@
       <div
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
         (click)="closePdf()"
+        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; touch-action: none;"
       >
         <div
           class="relative w-screen h-screen md:w-[80vw] md:h-[90vh] bg-white rounded-none md:rounded-2xl shadow-2xl flex flex-col"
           (click)="$event.stopPropagation()"
+          style="touch-action: pan-y;"
         >
           <!-- Modal header -->
           <div class="flex items-center justify-between px-4 py-3 md:px-5 md:py-4 border-b border-slate-200 bg-slate-50/80">
@@ -256,28 +258,40 @@
           </div>
 
           <!-- Modal body -->
-          <div class="relative flex-1 bg-white overflow-hidden">
+          <div class="relative flex-1 bg-white overflow-hidden" style="touch-action: pan-y;">
             @if (safePdfUrl()) {
-              <div class="relative w-full h-full overflow-auto" style="touch-action: pan-y pinch-zoom; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;">
+              <div 
+                class="relative w-full h-full pdf-viewer-container" 
+                style="overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; touch-action: pan-y pinch-zoom; height: 100%;"
+              >
                 @if (pdfLoading()) {
-                  <div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/90">
+                  <div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/90" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
                     <div class="mb-3 h-10 w-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
                     <p class="text-sm md:text-base text-slate-700 text-center px-4">
                       جارٍ تحميل ملف الـ PDF، يُرجى الانتظار...
                     </p>
                   </div>
                 }
-                <!-- Use iframe with better mobile support -->
-                <iframe
-                  [src]="safePdfUrl()"
+                <!-- Use object tag first (better mobile support), fallback to iframe -->
+                <object
+                  [data]="safePdfUrl()"
                   type="application/pdf"
                   class="w-full border-0"
-                  style="min-height: 100vh; display: block; touch-action: pan-y pinch-zoom;"
+                  style="width: 100%; height: auto; min-height: 100vh; display: block; touch-action: pan-y pinch-zoom;"
                   (load)="onPdfLoaded()"
-                  allowfullscreen
-                  webkitallowfullscreen
-                  mozallowfullscreen
-                ></iframe>
+                >
+                  <!-- Fallback iframe if object doesn't work -->
+                  <iframe
+                    [src]="safePdfUrl()"
+                    type="application/pdf"
+                    class="w-full border-0"
+                    style="width: 100%; height: auto; min-height: 100vh; display: block; touch-action: pan-y pinch-zoom;"
+                    (load)="onPdfLoaded()"
+                    allowfullscreen
+                    webkitallowfullscreen
+                    mozallowfullscreen
+                  ></iframe>
+                </object>
               </div>
             } @else {
               <div class="w-full h-full flex items-center justify-center p-6 text-center text-slate-700">
