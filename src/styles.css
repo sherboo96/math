@@ -2,3 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Performance optimizations */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Optimize image rendering */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  content-visibility: auto;
+}
+
+/* Reduce repaints on scroll */
+main {
+  contain: layout style paint;
+}
+
+/* Optimize card hover effects */
+article {
+  will-change: transform;
+  transform: translateZ(0);
+}
+

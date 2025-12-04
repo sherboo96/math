@@ -1,28 +1,28 @@
 <main dir="rtl" class="min-h-screen bg-white px-4 py-8 flex justify-center relative overflow-hidden">
   <!-- Animated Math Shapes Background -->
-  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden" style="contain: layout style paint;">
     <!-- Circle shapes -->
     <div class="math-shape circle absolute top-20 left-10 w-16 h-16 bg-teal-100/30 rounded-full"></div>
-    <div class="math-shape circle absolute top-40 right-20 w-12 h-12 bg-teal-200/20 rounded-full"></div>
-    <div class="math-shape circle absolute bottom-32 left-32 w-20 h-20 bg-teal-100/25 rounded-full"></div>
+    <div class="math-shape circle absolute top-40 right-20 w-12 h-12 bg-teal-200/20 rounded-full hidden md:block"></div>
+    <div class="math-shape circle absolute bottom-32 left-32 w-20 h-20 bg-teal-100/25 rounded-full hidden md:block"></div>
     <div class="math-shape circle absolute bottom-20 right-40 w-14 h-14 bg-teal-200/30 rounded-full"></div>
     
     <!-- Square shapes -->
-    <div class="math-shape square absolute top-60 left-24 w-10 h-10 bg-teal-100/20 rotate-45"></div>
+    <div class="math-shape square absolute top-60 left-24 w-10 h-10 bg-teal-100/20 rotate-45 hidden md:block"></div>
     <div class="math-shape square absolute top-80 right-60 w-8 h-8 bg-teal-200/25 rotate-45"></div>
-    <div class="math-shape square absolute bottom-60 left-60 w-12 h-12 bg-teal-100/30 rotate-45"></div>
+    <div class="math-shape square absolute bottom-60 left-60 w-12 h-12 bg-teal-100/30 rotate-45 hidden md:block"></div>
     
     <!-- Triangle shapes -->
     <div class="math-shape triangle absolute top-32 right-32 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[20px] border-b-teal-100/30"></div>
-    <div class="math-shape triangle absolute bottom-40 left-20 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[16px] border-b-teal-200/25"></div>
+    <div class="math-shape triangle absolute bottom-40 left-20 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[16px] border-b-teal-200/25 hidden md:block"></div>
     
     <!-- Math symbols -->
-    <div class="math-shape symbol absolute top-48 left-16 text-3xl text-teal-200/20 font-bold">π</div>
+    <div class="math-shape symbol absolute top-48 left-16 text-3xl text-teal-200/20 font-bold hidden md:block">π</div>
     <div class="math-shape symbol absolute top-72 right-16 text-2xl text-teal-100/25 font-bold">+</div>
-    <div class="math-shape symbol absolute bottom-48 left-48 text-2xl text-teal-200/20 font-bold">×</div>
+    <div class="math-shape symbol absolute bottom-48 left-48 text-2xl text-teal-200/20 font-bold hidden md:block">×</div>
     <div class="math-shape symbol absolute bottom-72 right-32 text-3xl text-teal-100/30 font-bold">÷</div>
-    <div class="math-shape symbol absolute top-96 left-40 text-2xl text-teal-200/25 font-bold">∑</div>
-    <div class="math-shape symbol absolute bottom-96 right-16 text-2xl text-teal-100/20 font-bold">∫</div>
+    <div class="math-shape symbol absolute top-96 left-40 text-2xl text-teal-200/25 font-bold hidden md:block">∑</div>
+    <div class="math-shape symbol absolute bottom-96 right-16 text-2xl text-teal-100/20 font-bold hidden md:block">∫</div>
   </div>
   
   <section class="w-full max-w-6xl relative z-10">
@@ -32,12 +32,16 @@
         src="assets/logo.png"
         alt="شعار وزارة التربية الكويت"
         class="h-24 md:h-28 w-auto object-contain"
+        loading="lazy"
+        decoding="async"
       />
 
       <img
         src="assets/school.jpg"
         alt="شعار المدرسة"
         class="h-24 md:h-28 w-auto object-contain"
+        loading="lazy"
+        decoding="async"
       />
     </div>
 
@@ -397,7 +401,7 @@
         style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; touch-action: none;"
       >
         <div
-          class="relative w-screen h-screen md:w-[92vw] md:h-[92vh] bg-white rounded-none md:rounded-3xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-300"
+          class="relative w-[95vw] h-[85vh] md:w-[92vw] md:h-[92vh] bg-white rounded-2xl md:rounded-3xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-300 max-w-full max-h-full"
           (click)="$event.stopPropagation()"
           style="touch-action: pan-y;"
         >
@@ -461,11 +465,13 @@
                 <iframe
                   [src]="safePreviewUrl()"
                   class="w-full h-full border-0"
-                  style="width: 100%; height: 100%; min-height: 100vh; display: block; touch-action: pan-y pinch-zoom;"
+                  style="width: 100%; height: 100%; min-height: 100vh; display: block; touch-action: pan-y pinch-zoom; contain: layout style paint;"
                   allowfullscreen
                   webkitallowfullscreen
                   mozallowfullscreen
+                  loading="lazy"
                   (load)="onPreviewLoaded()"
+                  referrerpolicy="no-referrer-when-downgrade"
                 ></iframe>
               </div>
             } @else {

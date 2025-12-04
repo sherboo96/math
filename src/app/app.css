@@ -22,11 +22,13 @@
   }
 }
 
-/* Smooth scrolling for PDF viewer */
+/* Smooth scrolling for PDF viewer - Performance optimized */
 .pdf-viewer-container {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   overscroll-behavior-x: none;
+  contain: layout style paint;
+  will-change: scroll-position;
 }
 
 /* Prevent iOS bounce effect */
@@ -39,9 +41,13 @@
   }
 }
 
-/* Animated Math Shapes */
+/* Animated Math Shapes - Performance Optimized */
 .math-shape {
   animation: float 20s infinite ease-in-out;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .math-shape.circle {
@@ -58,53 +64,54 @@
 
 .math-shape.symbol {
   animation: float 25s infinite ease-in-out, fade 8s infinite ease-in-out;
+  will-change: transform, opacity;
 }
 
-/* Float animation */
+/* Float animation - GPU accelerated */
 @keyframes float {
   0%, 100% {
-    transform: translateY(0) translateX(0);
+    transform: translate3d(0, 0, 0);
   }
   25% {
-    transform: translateY(-30px) translateX(20px);
+    transform: translate3d(20px, -30px, 0);
   }
   50% {
-    transform: translateY(-15px) translateX(-15px);
+    transform: translate3d(-15px, -15px, 0);
   }
   75% {
-    transform: translateY(-25px) translateX(10px);
+    transform: translate3d(10px, -25px, 0);
   }
 }
 
-/* Pulse animation for circles */
+/* Pulse animation for circles - GPU accelerated */
 @keyframes pulse {
   0%, 100% {
     opacity: 0.3;
-    transform: scale(1);
+    transform: translateZ(0) scale(1);
   }
   50% {
     opacity: 0.5;
-    transform: scale(1.1);
+    transform: translateZ(0) scale(1.1);
   }
 }
 
-/* Rotate animation for squares */
+/* Rotate animation for squares - GPU accelerated */
 @keyframes rotate {
   0% {
-    transform: rotate(45deg);
+    transform: translateZ(0) rotate(45deg);
   }
   100% {
-    transform: rotate(405deg);
+    transform: translateZ(0) rotate(405deg);
   }
 }
 
-/* Bounce animation for triangles */
+/* Bounce animation for triangles - GPU accelerated */
 @keyframes bounce {
   0%, 100% {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translateY(-20px);
+    transform: translate3d(0, -20px, 0);
   }
 }
 
