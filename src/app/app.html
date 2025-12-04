@@ -1,4 +1,17 @@
-<main dir="rtl" class="min-h-screen bg-white px-4 py-8 flex justify-center">
+<main dir="rtl" class="min-h-screen bg-white px-4 py-8 flex justify-center relative">
+  <!-- Preload loader overlay -->
+  @if (preloadingPdfs()) {
+    <div class="fixed inset-0 z-40 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm">
+      <div class="mb-4 h-12 w-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-base md:text-lg text-slate-700 font-medium">
+        جارٍ تحميل الملفات...
+      </p>
+      <p class="mt-2 text-xs md:text-sm text-slate-500">
+        يُرجى الانتظار قليلاً
+      </p>
+    </div>
+  }
+  
   <section class="w-full max-w-6xl">
     <!-- Top logos bar -->
     <div class="mb-6 flex items-center justify-between">

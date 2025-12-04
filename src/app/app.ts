@@ -14,9 +14,11 @@ export class App implements OnInit {
   protected readonly selectedPdfTitle = signal<string | null>(null);
   protected readonly safePdfUrl = signal<SafeResourceUrl | null>(null);
   protected readonly pdfLoading = signal<boolean>(false);
+  protected readonly preloadingPdfs = signal<boolean>(true);
   
   // Cache for preloaded PDFs
   private readonly pdfCache = new Map<string, SafeResourceUrl>();
+  private readonly pdfLoadedStatus = new Map<string, boolean>();
   private readonly pdfPaths = [
     'assets/pdf/tests.pdf',
     'assets/pdf/culclim.pdf',
@@ -37,18 +39,54 @@ export class App implements OnInit {
   }
 
   private preloadPdfs(): void {
+    this.preloadingPdfs.set(true);
+    let loadedCount = 0;
+    const totalPdfs = this.pdfPaths.length;
+
     this.pdfPaths.forEach((path) => {
       const pdfUrl = `${path}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
       const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
       this.pdfCache.set(path, safeUrl);
+      this.pdfLoadedStatus.set(path, false);
       
-      // Preload the PDF file in the background
+      // Preload the PDF file and track loading status
       const link = this.document.createElement('link');
       link.rel = 'prefetch';
       link.as = 'document';
       link.href = path;
+      
+      // Track when PDF is actually loaded
+      link.onload = () => {
+        this.pdfLoadedStatus.set(path, true);
+        loadedCount++;
+        if (loadedCount === totalPdfs) {
+          // All PDFs loaded, hide preload loader
+          setTimeout(() => {
+            this.preloadingPdfs.set(false);
+          }, 300);
+        }
+      };
+      
+      link.onerror = () => {
+        // Even if prefetch fails, mark as attempted
+        this.pdfLoadedStatus.set(path, true);
+        loadedCount++;
+        if (loadedCount === totalPdfs) {
+          setTimeout(() => {
+            this.preloadingPdfs.set(false);
+          }, 300);
+        }
+      };
+      
       this.document.head.appendChild(link);
     });
+    
+    // Fallback: hide loader after max 5 seconds even if not all loaded
+    setTimeout(() => {
+      if (this.preloadingPdfs()) {
+        this.preloadingPdfs.set(false);
+      }
+    }, 5000);
   }
 
   private toggleBodyScroll(locked: boolean): void {
@@ -65,13 +103,20 @@ export class App implements OnInit {
     this.selectedPdf.set(path);
     this.selectedPdfTitle.set(title);
     
-    // Use cached PDF if available, otherwise create new one
+    // Always use cached PDF - it should be preloaded
     const cachedUrl = this.pdfCache.get(path);
     if (cachedUrl) {
       this.safePdfUrl.set(cachedUrl);
-      this.pdfLoading.set(false); // Already loaded, no need to show loader
+      // Check if PDF is actually loaded, if not show loader briefly
+      const isLoaded = this.pdfLoadedStatus.get(path);
+      if (isLoaded) {
+        this.pdfLoading.set(false); // Already loaded, no loader needed
+      } else {
+        // Still loading, show loader
+        this.pdfLoading.set(true);
+      }
     } else {
-      // Fallback: create new URL if not in cache
+      // Fallback: create new URL if not in cache (shouldn't happen)
       const pdfUrl = `${path}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
       const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
       this.pdfCache.set(path, safeUrl);
