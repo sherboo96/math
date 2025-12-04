@@ -34,8 +34,8 @@ export class App {
       // Create Google Drive preview URL
       const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
       
-      // Open in new tab
-      window.open(previewUrl, '_blank', 'noopener,noreferrer');
+      // Open in same tab
+      window.location.href = previewUrl;
     }
   }
 
