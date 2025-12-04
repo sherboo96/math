@@ -1,6 +1,5 @@
 import { Component, Inject, OnInit, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -10,16 +9,10 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 })
 export class App implements OnInit {
   protected readonly title = signal('math');
-  protected readonly selectedPdf = signal<string | null>(null);
-  protected readonly selectedPdfTitle = signal<string | null>(null);
-  protected readonly safePdfUrl = signal<SafeResourceUrl | null>(null);
-  protected readonly pdfLoading = signal<boolean>(false);
   protected readonly preloadingPdfs = signal<boolean>(true);
   
   // Cache for preloaded PDFs - stores Blob URLs
-  private readonly pdfCache = new Map<string, SafeResourceUrl>();
-  private readonly pdfLoadedStatus = new Map<string, boolean>();
-  private readonly pdfBlobUrls = new Map<string, string>(); // Store blob URLs to revoke later
+  private readonly pdfBlobUrls = new Map<string, string>(); // Store blob URLs for downloads
   private readonly pdfPaths = [
     'assets/pdf/tests.pdf',
     'assets/pdf/culclim.pdf',
@@ -30,7 +23,6 @@ export class App implements OnInit {
   ];
 
   constructor(
-    private readonly sanitizer: DomSanitizer,
     @Inject(DOCUMENT) private readonly document: Document,
   ) {}
 
@@ -59,14 +51,6 @@ export class App implements OnInit {
         const blobUrl = URL.createObjectURL(blob);
         this.pdfBlobUrls.set(path, blobUrl);
         
-        // Create safe URL with PDF viewer parameters
-        const pdfUrl = `${blobUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
-        const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
-        
-        // Store in cache - PDF is now available immediately for use
-        this.pdfCache.set(path, safeUrl);
-        this.pdfLoadedStatus.set(path, true);
-        
         // Hide loader after first file loads (lazy loading - files available as they load)
         if (!firstFileLoaded) {
           firstFileLoaded = true;
@@ -76,11 +60,6 @@ export class App implements OnInit {
         }
       } catch (error) {
         console.error(`Error loading PDF ${path}:`, error);
-        // Fallback: use original URL if fetch fails
-        const pdfUrl = `${path}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
-        const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
-        this.pdfCache.set(path, safeUrl);
-        this.pdfLoadedStatus.set(path, true);
         
         // Hide loader if this is the first file (even if it failed)
         if (!firstFileLoaded) {
@@ -100,89 +79,6 @@ export class App implements OnInit {
     }, 3000);
   }
 
-  private toggleBodyScroll(locked: boolean): void {
-    if (locked) {
-      this.document.body.style.overflow = 'hidden';
-      this.document.body.classList.add('modal-open');
-    } else {
-      this.document.body.style.overflow = '';
-      this.document.body.classList.remove('modal-open');
-    }
-  }
-
-  openPdf(path: string, title: string): void {
-    this.selectedPdf.set(path);
-    this.selectedPdfTitle.set(title);
-    
-    // Check if PDF is already loaded in cache
-    const cachedUrl = this.pdfCache.get(path);
-    const isLoaded = this.pdfLoadedStatus.get(path);
-    
-    if (cachedUrl && isLoaded) {
-      // PDF is already loaded as Blob in memory, use it directly - instant display
-      this.safePdfUrl.set(cachedUrl);
-      this.pdfLoading.set(false);
-    } else if (cachedUrl) {
-      // PDF URL is cached but still loading, use it and show loader briefly
-      this.safePdfUrl.set(cachedUrl);
-      this.pdfLoading.set(true);
-    } else {
-      // PDF not in cache yet - load it on demand (lazy load)
-      this.loadPdfOnDemand(path);
-    }
-    
-    this.toggleBodyScroll(true);
-  }
-
-  private async loadPdfOnDemand(path: string): Promise<void> {
-    this.pdfLoading.set(true);
-    
-    try {
-      // Fetch the PDF file
-      const response = await fetch(path);
-      if (!response.ok) {
-        throw new Error(`Failed to load ${path}`);
-      }
-      
-      // Convert to Blob
-      const blob = await response.blob();
-      
-      // Create Blob URL
-      const blobUrl = URL.createObjectURL(blob);
-      this.pdfBlobUrls.set(path, blobUrl);
-      
-      // Create safe URL with PDF viewer parameters
-      const pdfUrl = `${blobUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
-      const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
-      
-      // Store in cache
-      this.pdfCache.set(path, safeUrl);
-      this.pdfLoadedStatus.set(path, true);
-      this.safePdfUrl.set(safeUrl);
-    } catch (error) {
-      console.error(`Error loading PDF ${path}:`, error);
-      // Fallback: use original URL
-      const pdfUrl = `${path}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
-      const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
-      this.pdfCache.set(path, safeUrl);
-      this.pdfLoadedStatus.set(path, true);
-      this.safePdfUrl.set(safeUrl);
-    }
-  }
-
-  closePdf(): void {
-    this.selectedPdf.set(null);
-    this.selectedPdfTitle.set(null);
-    this.safePdfUrl.set(null);
-    this.pdfLoading.set(false);
-    this.toggleBodyScroll(false);
-    
-    // Body position restored by removing modal-open class
-  }
-
-  onPdfLoaded(): void {
-    this.pdfLoading.set(false);
-  }
 
   async downloadPdf(path: string, title: string, event: Event): Promise<void> {
     // Prevent card click event
