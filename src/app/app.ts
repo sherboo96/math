@@ -10,6 +10,7 @@ import { DOCUMENT } from '@angular/common';
 export class App implements OnInit {
   protected readonly title = signal('math');
   protected readonly preloadingPdfs = signal<boolean>(true);
+  protected readonly downloadingPdf = signal<string | null>(null);
   
   // Cache for preloaded PDFs - stores Blob URLs
   private readonly pdfBlobUrls = new Map<string, string>(); // Store blob URLs for downloads
@@ -84,6 +85,9 @@ export class App implements OnInit {
     // Prevent card click event
     event.stopPropagation();
     
+    // Set downloading state
+    this.downloadingPdf.set(path);
+    
     try {
       // Check if PDF is already loaded in cache
       const blobUrl = this.pdfBlobUrls.get(path);
@@ -106,16 +110,21 @@ export class App implements OnInit {
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         
+        // Store blob URL for future use
+        this.pdfBlobUrls.set(path, url);
+        
         const link = this.document.createElement('a');
         link.href = url;
         link.download = `${title}.pdf`;
         this.document.body.appendChild(link);
         link.click();
         this.document.body.removeChild(link);
-        
-        // Clean up
-        URL.revokeObjectURL(url);
       }
+      
+      // Small delay to show success state
+      setTimeout(() => {
+        this.downloadingPdf.set(null);
+      }, 500);
     } catch (error) {
       console.error(`Error downloading PDF ${path}:`, error);
       // Fallback: direct download link
@@ -125,6 +134,8 @@ export class App implements OnInit {
       this.document.body.appendChild(link);
       link.click();
       this.document.body.removeChild(link);
+      
+      this.downloadingPdf.set(null);
     }
   }
 }
