@@ -393,102 +393,6 @@
       </div>
     </div>
 
-    <!-- PDF Preview Modal -->
-    @if (selectedPdf()) {
-      <div
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
-        (click)="closePreview()"
-        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; touch-action: none;"
-      >
-        <div
-          class="relative w-[95vw] h-[85vh] md:w-[92vw] md:h-[92vh] bg-white rounded-2xl md:rounded-3xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-300 max-w-full max-h-full"
-          (click)="$event.stopPropagation()"
-          style="touch-action: pan-y;"
-        >
-          <!-- Modal header -->
-          <div class="flex items-center justify-between px-5 py-4 md:px-6 md:py-5 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white relative z-50" style="touch-action: manipulation;">
-            <div class="flex items-center gap-3 min-w-0 flex-1">
-              <div class="shrink-0 w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center">
-                <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-              </div>
-              <div class="flex flex-col gap-0.5 min-w-0 flex-1">
-                <p class="text-[10px] md:text-xs uppercase tracking-[0.2em] text-slate-500 font-medium">
-                  معاينة الملف
-                </p>
-                <p class="text-sm md:text-lg font-bold text-slate-900 truncate">
-                  {{ selectedPdfTitle() || 'المحتوى' }}
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              class="inline-flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 hover:text-slate-900 w-10 h-10 md:w-9 md:h-9 transition-all duration-200 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 z-50"
-              (click)="closePreview($event)"
-              (touchstart)="closePreview($event)"
-              style="touch-action: manipulation; -webkit-tap-highlight-color: transparent; cursor: pointer;"
-              aria-label="إغلاق المعاينة"
-            >
-              <svg class="w-6 h-6 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Modal body -->
-          <div class="relative flex-1 bg-slate-50 overflow-hidden" style="touch-action: pan-y;">
-            @if (safePreviewUrl()) {
-              <div 
-                class="relative w-full h-full pdf-viewer-container" 
-                style="overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; touch-action: pan-y pinch-zoom; height: 100%;"
-              >
-                @if (previewLoading()) {
-                  <div class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm">
-                    <div class="relative">
-                      <div class="w-16 h-16 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin"></div>
-                      <div class="absolute inset-0 flex items-center justify-center">
-                        <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                      </div>
-                    </div>
-                    <p class="mt-4 text-base font-semibold text-slate-700">
-                      جارٍ تحميل الملف...
-                    </p>
-                    <p class="mt-1 text-sm text-slate-500">
-                      يُرجى الانتظار قليلاً
-                    </p>
-                  </div>
-                }
-                <iframe
-                  [src]="safePreviewUrl()"
-                  class="w-full h-full border-0"
-                  style="width: 100%; height: 100%; min-height: 100vh; display: block; touch-action: pan-y pinch-zoom; contain: layout style paint;"
-                  allowfullscreen
-                  webkitallowfullscreen
-                  mozallowfullscreen
-                  loading="lazy"
-                  (load)="onPreviewLoaded()"
-                  referrerpolicy="no-referrer-when-downgrade"
-                ></iframe>
-              </div>
-            } @else {
-              <div class="w-full h-full flex items-center justify-center p-6 text-center text-slate-700">
-                <div class="flex flex-col items-center gap-3">
-                  <div class="w-12 h-12 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin"></div>
-                  <p class="text-sm md:text-base font-medium">
-                    جارٍ تحميل المعاينة...
-                  </p>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-    }
-
     <footer class="mt-16 mb-8">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         <!-- إعداد المعلمة -->
@@ -512,5 +416,101 @@
     </footer>
   </section>
 </main>
+
+<!-- PDF Preview Modal - Outside main to ensure fixed positioning -->
+@if (selectedPdf()) {
+  <div
+    class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+    (click)="closePreview()"
+    style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; padding: 0 !important; touch-action: none;"
+  >
+    <div
+      class="relative w-[95vw] h-[85vh] md:w-[92vw] md:h-[92vh] bg-white rounded-2xl md:rounded-3xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-300 max-w-full max-h-full"
+      (click)="$event.stopPropagation()"
+      style="touch-action: pan-y;"
+    >
+      <!-- Modal header -->
+      <div class="flex items-center justify-between px-5 py-4 md:px-6 md:py-5 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white relative z-50" style="touch-action: manipulation;">
+        <div class="flex items-center gap-3 min-w-0 flex-1">
+          <div class="shrink-0 w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center">
+            <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <div class="flex flex-col gap-0.5 min-w-0 flex-1">
+            <p class="text-[10px] md:text-xs uppercase tracking-[0.2em] text-slate-500 font-medium">
+              معاينة الملف
+            </p>
+            <p class="text-sm md:text-lg font-bold text-slate-900 truncate">
+              {{ selectedPdfTitle() || 'المحتوى' }}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="inline-flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 hover:text-slate-900 w-10 h-10 md:w-9 md:h-9 transition-all duration-200 hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 z-50"
+          (click)="closePreview($event)"
+          (touchstart)="closePreview($event)"
+          style="touch-action: manipulation; -webkit-tap-highlight-color: transparent; cursor: pointer;"
+          aria-label="إغلاق المعاينة"
+        >
+          <svg class="w-6 h-6 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="relative flex-1 bg-slate-50 overflow-hidden" style="touch-action: pan-y;">
+        @if (safePreviewUrl()) {
+          <div 
+            class="relative w-full h-full pdf-viewer-container" 
+            style="overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; touch-action: pan-y pinch-zoom; height: 100%;"
+          >
+            @if (previewLoading()) {
+              <div class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm">
+                <div class="relative">
+                  <div class="w-16 h-16 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin"></div>
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                  </div>
+                </div>
+                <p class="mt-4 text-base font-semibold text-slate-700">
+                  جارٍ تحميل الملف...
+                </p>
+                <p class="mt-1 text-sm text-slate-500">
+                  يُرجى الانتظار قليلاً
+                </p>
+              </div>
+            }
+            <iframe
+              [src]="safePreviewUrl()"
+              class="w-full h-full border-0"
+              style="width: 100%; height: 100%; min-height: 100vh; display: block; touch-action: pan-y pinch-zoom; contain: layout style paint;"
+              allowfullscreen
+              webkitallowfullscreen
+              mozallowfullscreen
+              loading="lazy"
+              (load)="onPreviewLoaded()"
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
+        } @else {
+          <div class="w-full h-full flex items-center justify-center p-6 text-center text-slate-700">
+            <div class="flex flex-col items-center gap-3">
+              <div class="w-12 h-12 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin"></div>
+              <p class="text-sm md:text-base font-medium">
+                جارٍ تحميل المعاينة...
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
 
 
