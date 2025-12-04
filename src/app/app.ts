@@ -183,4 +183,52 @@ export class App implements OnInit {
   onPdfLoaded(): void {
     this.pdfLoading.set(false);
   }
+
+  async downloadPdf(path: string, title: string, event: Event): Promise<void> {
+    // Prevent card click event
+    event.stopPropagation();
+    
+    try {
+      // Check if PDF is already loaded in cache
+      const blobUrl = this.pdfBlobUrls.get(path);
+      
+      if (blobUrl) {
+        // PDF is already loaded, download directly from Blob
+        const link = this.document.createElement('a');
+        link.href = blobUrl;
+        link.download = `${title}.pdf`;
+        this.document.body.appendChild(link);
+        link.click();
+        this.document.body.removeChild(link);
+      } else {
+        // PDF not loaded yet, fetch and download
+        const response = await fetch(path);
+        if (!response.ok) {
+          throw new Error(`Failed to load ${path}`);
+        }
+        
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        
+        const link = this.document.createElement('a');
+        link.href = url;
+        link.download = `${title}.pdf`;
+        this.document.body.appendChild(link);
+        link.click();
+        this.document.body.removeChild(link);
+        
+        // Clean up
+        URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error(`Error downloading PDF ${path}:`, error);
+      // Fallback: direct download link
+      const link = this.document.createElement('a');
+      link.href = path;
+      link.download = `${title}.pdf`;
+      this.document.body.appendChild(link);
+      link.click();
+      this.document.body.removeChild(link);
+    }
+  }
 }
