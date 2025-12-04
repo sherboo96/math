@@ -48,7 +48,7 @@
       <button
         type="button"
         class="group block w-full text-right focus:outline-none"
-        (click)="openPdf('assets/pdf/tests.pdf')"
+        (click)="openPdf('assets/pdf/tests.pdf', 'الاختبارات السابقة')"
       >
         <article
           class="h-full bg-white text-teal-900 rounded-3xl px-7 py-8 flex flex-col items-stretch justify-between text-right shadow-sm border border-slate-200 group-hover:-translate-y-1.5 group-hover:shadow-xl group-hover:border-teal-400/70 group-hover:bg-teal-50/60 transition"
@@ -78,7 +78,7 @@
       <button
         type="button"
         class="group block w-full text-right focus:outline-none"
-        (click)="openPdf('assets/pdf/culclim.pdf')"
+        (click)="openPdf('assets/pdf/culclim.pdf', 'توزيع المنهج')"
       >
         <article
           class="h-full bg-white text-teal-900 rounded-3xl px-7 py-8 flex flex-col items-stretch justify-between text-right shadow-sm border border-slate-200 group-hover:-translate-y-1.5 group-hover:shadow-xl group-hover:border-teal-400/70 group-hover:bg-teal-50/60 transition"
@@ -108,7 +108,7 @@
       <button
         type="button"
         class="group block w-full text-right focus:outline-none"
-        (click)="openPdf('assets/pdf/math.pdf')"
+        (click)="openPdf('assets/pdf/math.pdf', 'كتاب الطالب')"
       >
         <article
           class="h-full bg-white text-teal-900 rounded-3xl px-7 py-8 flex flex-col items-stretch justify-between text-right shadow-sm border border-slate-200 group-hover:-translate-y-1.5 group-hover:shadow-xl group-hover:border-teal-400/70 group-hover:bg-teal-50/60 transition"
@@ -138,7 +138,7 @@
       <button
         type="button"
         class="group block w-full text-right focus:outline-none"
-        (click)="openPdf('assets/pdf/answers.pdf')"
+        (click)="openPdf('assets/pdf/answers.pdf', 'إجابات الاختبارات السابقة')"
       >
         <article
           class="h-full bg-white text-teal-900 rounded-3xl px-7 py-8 flex flex-col items-stretch justify-between text-right shadow-sm border border-slate-200 group-hover:-translate-y-1.5 group-hover:shadow-xl group-hover:border-teal-400/70 group-hover:bg-teal-50/60 transition"
@@ -168,7 +168,7 @@
       <button
         type="button"
         class="group block w-full text-right focus:outline-none"
-        (click)="openPdf('assets/pdf/map.pdf')"
+        (click)="openPdf('assets/pdf/map.pdf', 'خرائط ذهنية')"
       >
         <article
           class="h-full bg-white text-teal-900 rounded-3xl px-7 py-8 flex flex-col items-stretch justify-between text-right shadow-sm border border-slate-200 group-hover:-translate-y-1.5 group-hover:shadow-xl group-hover:border-teal-400/70 group-hover:bg-teal-50/60 transition"
@@ -198,7 +198,7 @@
       <button
         type="button"
         class="group block w-full text-right focus:outline-none"
-        (click)="openPdf('assets/pdf/annancement.pdf')"
+        (click)="openPdf('assets/pdf/annancement.pdf', 'كراسة التمارين')"
       >
         <article
           class="h-full bg-white text-teal-900 rounded-3xl px-7 py-8 flex flex-col items-stretch justify-between text-right shadow-sm border border-slate-200 group-hover:-translate-y-1.5 group-hover:shadow-xl group-hover:border-teal-400/70 group-hover:bg-teal-50/60 transition"
@@ -231,51 +231,66 @@
         (click)="closePdf()"
       >
         <div
-          class="relative w-[95vw] h-[90vh] md:w-[80vw] bg-white rounded-2xl shadow-2xl overflow-hidden"
+          class="relative w-screen h-screen md:w-[80vw] md:h-[90vh] bg-white rounded-none md:rounded-2xl shadow-2xl overflow-hidden flex flex-col"
           (click)="$event.stopPropagation()"
         >
-          <button
-            type="button"
-            class="absolute top-3 left-3 md:top-4 md:left-4 inline-flex items-center justify-center rounded-full bg-slate-800/80 text-white w-8 h-8 text-sm hover:bg-slate-900 focus:outline-none"
-            (click)="closePdf()"
-            aria-label="إغلاق المعاينة"
-          >
-            ✕
-          </button>
-
-          @if (safePdfUrl()) {
-            <div class="relative w-full h-full">
-              @if (pdfLoading()) {
-                <div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/90">
-                  <div class="mb-3 h-10 w-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p class="text-sm md:text-base text-slate-700">
-                    جارٍ تحميل ملف الـ PDF، يُرجى الانتظار...
-                  </p>
-                </div>
-              }
-              <iframe
-                class="w-full h-full border-0"
-                [src]="safePdfUrl()"
-                (load)="onPdfLoaded()"
-              ></iframe>
-            </div>
-          } @else {
-            <div class="w-full h-full flex items-center justify-center p-6 text-center text-slate-700">
-              <p class="text-sm md:text-base">
-                لا يمكن عرض ملف الـ PDF في هذا المتصفّح. يمكنك تنزيله من
-                <a
-                  class="text-teal-700 underline font-semibold"
-                  [href]="selectedPdf() ?? ''"
-                  download
-                >
-                  هنا
-                </a>
-                .
+          <!-- Modal header -->
+          <div class="flex items-center justify-between px-4 py-3 md:px-5 md:py-4 border-b border-slate-200 bg-slate-50/80">
+            <div class="flex flex-col gap-0.5 min-w-0">
+              <p class="text-[11px] md:text-xs uppercase tracking-[0.18em] text-slate-400">
+                معاينة الملف
+              </p>
+              <p class="text-sm md:text-base font-semibold text-slate-800 truncate">
+                {{ selectedPdfTitle() || 'المحتوى' }}
               </p>
             </div>
-          }
-        </div>
+
+            <button
+              type="button"
+              class="inline-flex items-center justify-center rounded-full bg-slate-800/80 text-white w-8 h-8 text-sm hover:bg-slate-900 focus:outline-none"
+              (click)="closePdf()"
+              aria-label="إغلاق المعاينة"
+            >
+              ✕
+            </button>
+          </div>
+
+          <!-- Modal body -->
+          <div class="relative flex-1 bg-white">
+            @if (safePdfUrl()) {
+              <div class="relative w-full h-full">
+                @if (pdfLoading()) {
+                  <div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/90">
+                    <div class="mb-3 h-10 w-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-sm md:text-base text-slate-700 text-center px-4">
+                      جارٍ تحميل ملف الـ PDF، يُرجى الانتظار...
+                    </p>
+                  </div>
+                }
+                <iframe
+                  class="w-full h-full border-0"
+                  [src]="safePdfUrl()"
+                  (load)="onPdfLoaded()"
+                ></iframe>
+              </div>
+            } @else {
+              <div class="w-full h-full flex items-center justify-center p-6 text-center text-slate-700">
+                <p class="text-sm md:text-base">
+                  لا يمكن عرض ملف الـ PDF في هذا المتصفّح. يمكنك تنزيله من
+                  <a
+                    class="text-teal-700 underline font-semibold"
+                    [href]="selectedPdf() ?? ''"
+                    download
+                  >
+                    هنا
+                  </a>
+                  .
+                </p>
+              </div>
+            }
       </div>
+    </div>
+  </div>
     }
 
     <footer

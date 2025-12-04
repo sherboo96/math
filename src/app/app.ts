@@ -11,6 +11,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 export class App {
   protected readonly title = signal('math');
   protected readonly selectedPdf = signal<string | null>(null);
+  protected readonly selectedPdfTitle = signal<string | null>(null);
   protected readonly safePdfUrl = signal<SafeResourceUrl | null>(null);
   protected readonly pdfLoading = signal<boolean>(false);
 
@@ -23,8 +24,9 @@ export class App {
     this.document.body.style.overflow = locked ? 'hidden' : '';
   }
 
-  openPdf(path: string): void {
+  openPdf(path: string, title: string): void {
     this.selectedPdf.set(path);
+    this.selectedPdfTitle.set(title);
     this.safePdfUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(path));
     this.pdfLoading.set(true);
     this.toggleBodyScroll(true);
@@ -32,6 +34,7 @@ export class App {
 
   closePdf(): void {
     this.selectedPdf.set(null);
+    this.selectedPdfTitle.set(null);
     this.safePdfUrl.set(null);
     this.pdfLoading.set(false);
     this.toggleBodyScroll(false);
