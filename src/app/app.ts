@@ -1,5 +1,6 @@
-import { Component, Inject, OnInit, signal } from '@angular/core';
+import { Component, Inject, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -7,134 +8,92 @@ import { DOCUMENT } from '@angular/common';
   templateUrl: 'app.html',
   styleUrl: './app.css',
 })
-export class App implements OnInit {
+export class App {
   protected readonly title = signal('math');
-  protected readonly preloadingPdfs = signal<boolean>(true);
   protected readonly downloadingPdf = signal<string | null>(null);
+  protected readonly selectedPdf = signal<string | null>(null);
+  protected readonly selectedPdfTitle = signal<string | null>(null);
+  protected readonly safePreviewUrl = signal<SafeResourceUrl | null>(null);
+  protected readonly previewLoading = signal<boolean>(true);
   
-  // Cache for preloaded PDFs - stores Blob URLs
-  private readonly pdfBlobUrls = new Map<string, string>(); // Store blob URLs for downloads
-  private readonly pdfPaths = [
-    'assets/pdf/tests.pdf',
-    'assets/pdf/culclim.pdf',
-    'assets/pdf/math.pdf',
-    'assets/pdf/answers.pdf',
-    'assets/pdf/map.pdf',
-    'assets/pdf/annancement.pdf',
-  ];
+  // Google Drive file IDs
+  private readonly googleDriveFiles = new Map<string, string>([
+    ['annancement', '1l4YggnpEzepaCRrNwcjXB8CkZTum9lu-'],
+    ['answers', '10W2yQ8shlaoChP4-5EWNDwstCYDQ_bCf'],
+    ['culclim', '10XDkKyjGBWe6bHDl_fwSKbPIZzJJPnA4'],
+    ['map', '1qfEqVK2FOOQJm1cPshtaDPFhk0_jTSDc'],
+    ['math', '1E87Vid6ebrXvHrEBIESlpTkZTRLJJYS5'],
+    ['tests', '1W2aPN-bKpfbdJdmVLj1s1iLTrxn-crUq'],
+  ]);
 
   constructor(
     @Inject(DOCUMENT) private readonly document: Document,
+    private readonly sanitizer: DomSanitizer,
   ) {}
 
-  ngOnInit(): void {
-    // Preload all PDFs when component initializes
-    this.preloadPdfs();
-  }
-
-  private async preloadPdfs(): Promise<void> {
-    this.preloadingPdfs.set(true);
-    let firstFileLoaded = false;
-
-    // Load PDFs in parallel - each file becomes available as soon as it loads (lazy loading)
-    this.pdfPaths.forEach(async (path) => {
-      try {
-        // Fetch the PDF file
-        const response = await fetch(path);
-        if (!response.ok) {
-          throw new Error(`Failed to load ${path}`);
-        }
-        
-        // Convert to Blob - this loads the file into memory
-        const blob = await response.blob();
-        
-        // Create Blob URL - this creates a local URL pointing to the blob in memory
-        const blobUrl = URL.createObjectURL(blob);
-        this.pdfBlobUrls.set(path, blobUrl);
-        
-        // Hide loader after first file loads (lazy loading - files available as they load)
-        if (!firstFileLoaded) {
-          firstFileLoaded = true;
-          setTimeout(() => {
-            this.preloadingPdfs.set(false);
-          }, 500);
-        }
-      } catch (error) {
-        console.error(`Error loading PDF ${path}:`, error);
-        
-        // Hide loader if this is the first file (even if it failed)
-        if (!firstFileLoaded) {
-          firstFileLoaded = true;
-          setTimeout(() => {
-            this.preloadingPdfs.set(false);
-          }, 500);
-        }
-      }
-    });
+  openPreview(fileKey: string, title: string, event: Event): void {
+    // Prevent card click event
+    event.stopPropagation();
     
-    // Fallback: hide loader after max 3 seconds even if no files loaded yet
-    setTimeout(() => {
-      if (this.preloadingPdfs()) {
-        this.preloadingPdfs.set(false);
-      }
-    }, 3000);
+    const fileId = this.googleDriveFiles.get(fileKey);
+    if (fileId) {
+      this.selectedPdf.set(fileId);
+      this.selectedPdfTitle.set(title);
+      this.previewLoading.set(true);
+      
+      // Create safe preview URL for iframe
+      const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+      this.safePreviewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(previewUrl));
+      
+      // Lock body scroll
+      this.document.body.style.overflow = 'hidden';
+    }
   }
 
+  closePreview(): void {
+    this.selectedPdf.set(null);
+    this.selectedPdfTitle.set(null);
+    this.safePreviewUrl.set(null);
+    this.previewLoading.set(false);
+    // Restore body scroll
+    this.document.body.style.overflow = '';
+  }
 
-  async downloadPdf(path: string, title: string, event: Event): Promise<void> {
+  onPreviewLoaded(): void {
+    this.previewLoading.set(false);
+  }
+
+  downloadPdf(fileKey: string, title: string, event: Event): void {
     // Prevent card click event
     event.stopPropagation();
     
     // Set downloading state
-    this.downloadingPdf.set(path);
+    this.downloadingPdf.set(fileKey);
     
     try {
-      // Check if PDF is already loaded in cache
-      const blobUrl = this.pdfBlobUrls.get(path);
-      
-      if (blobUrl) {
-        // PDF is already loaded, download directly from Blob
-        const link = this.document.createElement('a');
-        link.href = blobUrl;
-        link.download = `${title}.pdf`;
-        this.document.body.appendChild(link);
-        link.click();
-        this.document.body.removeChild(link);
-      } else {
-        // PDF not loaded yet, fetch and download
-        const response = await fetch(path);
-        if (!response.ok) {
-          throw new Error(`Failed to load ${path}`);
-        }
-        
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        
-        // Store blob URL for future use
-        this.pdfBlobUrls.set(path, url);
-        
-        const link = this.document.createElement('a');
-        link.href = url;
-        link.download = `${title}.pdf`;
-        this.document.body.appendChild(link);
-        link.click();
-        this.document.body.removeChild(link);
+      const fileId = this.googleDriveFiles.get(fileKey);
+      if (!fileId) {
+        throw new Error(`File ID not found for ${fileKey}`);
       }
       
-      // Small delay to show success state
-      setTimeout(() => {
-        this.downloadingPdf.set(null);
-      }, 500);
-    } catch (error) {
-      console.error(`Error downloading PDF ${path}:`, error);
-      // Fallback: direct download link
+      // Create Google Drive direct download link
+      const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+      
+      // Open download link in new tab
       const link = this.document.createElement('a');
-      link.href = path;
-      link.download = `${title}.pdf`;
+      link.href = downloadUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
       this.document.body.appendChild(link);
       link.click();
       this.document.body.removeChild(link);
       
+      // Reset downloading state after delay
+      setTimeout(() => {
+        this.downloadingPdf.set(null);
+      }, 1000);
+    } catch (error) {
+      console.error(`Error downloading PDF ${fileKey}:`, error);
       this.downloadingPdf.set(null);
     }
   }

@@ -1,17 +1,4 @@
-<main dir="rtl" class="min-h-screen bg-white px-4 py-8 flex justify-center relative">
-  <!-- Preload loader overlay -->
-  @if (preloadingPdfs()) {
-    <div class="fixed inset-0 z-40 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm">
-      <div class="mb-4 h-12 w-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
-      <p class="text-base md:text-lg text-slate-700 font-medium">
-        جارٍ تحميل الملفات...
-      </p>
-      <p class="mt-2 text-xs md:text-sm text-slate-500">
-        يُرجى الانتظار قليلاً
-      </p>
-    </div>
-  }
-  
+<main dir="rtl" class="min-h-screen bg-white px-4 py-8 flex justify-center">
   <section class="w-full max-w-6xl">
     <!-- Top logos bar -->
     <div class="mb-6 flex items-center justify-between">
@@ -73,22 +60,34 @@
               </p>
             </div>
           </div>
-          <div class="mt-6 flex items-center justify-center">
+          <div class="mt-6 flex items-center justify-center gap-2.5">
             <button
               type="button"
-              class="relative inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 font-semibold text-sm md:text-base transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-100 disabled:opacity-70 disabled:cursor-not-allowed"
-              (click)="downloadPdf('assets/pdf/tests.pdf', 'الاختبارات السابقة', $event)"
-              [disabled]="downloadingPdf() === 'assets/pdf/tests.pdf'"
+              class="relative inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-white text-teal-700 hover:bg-teal-50 border-2 border-teal-600 hover:border-teal-700 font-medium text-xs transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 active:scale-100"
+              (click)="openPreview('tests', 'الاختبارات السابقة', $event)"
+              title="معاينة الملف"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>معاينة</span>
+            </button>
+            <button
+              type="button"
+              class="relative inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 font-medium text-xs transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 active:scale-100 disabled:opacity-70 disabled:cursor-not-allowed"
+              (click)="downloadPdf('tests', 'الاختبارات السابقة', $event)"
+              [disabled]="downloadingPdf() === 'tests'"
               title="تنزيل ملف الاختبارات السابقة"
             >
-              @if (downloadingPdf() === 'assets/pdf/tests.pdf') {
-                <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              @if (downloadingPdf() === 'tests') {
+                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <span>جاري التنزيل...</span>
               } @else {
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
                 </svg>
                 <span>تنزيل الملف</span>
@@ -114,30 +113,42 @@
               </p>
             </div>
           </div>
-          <div class="mt-6 flex items-center justify-center">
+          <div class="mt-6 flex items-center justify-center gap-2.5">
             <button
               type="button"
-              class="relative inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 font-semibold text-sm md:text-base transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-100 disabled:opacity-70 disabled:cursor-not-allowed"
-              (click)="downloadPdf('assets/pdf/culclim.pdf', 'توزيع المنهج', $event)"
-              [disabled]="downloadingPdf() === 'assets/pdf/culclim.pdf'"
+              class="relative inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-white text-teal-700 hover:bg-teal-50 border-2 border-teal-600 hover:border-teal-700 font-medium text-xs transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 active:scale-100"
+              (click)="openPreview('culclim', 'توزيع المنهج', $event)"
+              title="معاينة الملف"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>معاينة</span>
+            </button>
+            <button
+              type="button"
+              class="relative inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 font-medium text-xs transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 active:scale-100 disabled:opacity-70 disabled:cursor-not-allowed"
+              (click)="downloadPdf('culclim', 'توزيع المنهج', $event)"
+              [disabled]="downloadingPdf() === 'culclim'"
               title="تنزيل ملف توزيع المنهج"
             >
-              @if (downloadingPdf() === 'assets/pdf/culclim.pdf') {
-                <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              @if (downloadingPdf() === 'culclim') {
+                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <span>جاري التنزيل...</span>
               } @else {
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
-                </svg>
+      </svg>
                 <span>تنزيل الملف</span>
               }
             </button>
           </div>
         </article>
-      </div>
+    </div>
 
       <!-- Student book -->
       <div class="group block w-full text-right">
@@ -155,26 +166,38 @@
               </p>
             </div>
           </div>
-          <div class="mt-6 flex items-center justify-center">
+          <div class="mt-6 flex items-center justify-center gap-2.5">
             <button
               type="button"
-              class="relative inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 font-semibold text-sm md:text-base transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-100 disabled:opacity-70 disabled:cursor-not-allowed"
-              (click)="downloadPdf('assets/pdf/math.pdf', 'كتاب الطالب', $event)"
-              [disabled]="downloadingPdf() === 'assets/pdf/math.pdf'"
+              class="relative inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-white text-teal-700 hover:bg-teal-50 border-2 border-teal-600 hover:border-teal-700 font-medium text-xs transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 active:scale-100"
+              (click)="openPreview('math', 'كتاب الطالب', $event)"
+              title="معاينة الملف"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>معاينة</span>
+            </button>
+            <button
+              type="button"
+              class="relative inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 font-medium text-xs transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 active:scale-100 disabled:opacity-70 disabled:cursor-not-allowed"
+              (click)="downloadPdf('math', 'كتاب الطالب', $event)"
+              [disabled]="downloadingPdf() === 'math'"
               title="تنزيل ملف كتاب الطالب"
             >
-              @if (downloadingPdf() === 'assets/pdf/math.pdf') {
-                <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              @if (downloadingPdf() === 'math') {
+                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <span>جاري التنزيل...</span>
               } @else {
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
-                </svg>
+            </svg>
                 <span>تنزيل الملف</span>
-              }
+        }
             </button>
           </div>
         </article>
@@ -196,24 +219,36 @@
               </p>
             </div>
           </div>
-          <div class="mt-6 flex items-center justify-center">
+          <div class="mt-6 flex items-center justify-center gap-2.5">
             <button
               type="button"
-              class="relative inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 font-semibold text-sm md:text-base transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-100 disabled:opacity-70 disabled:cursor-not-allowed"
-              (click)="downloadPdf('assets/pdf/answers.pdf', 'إجابات الاختبارات السابقة', $event)"
-              [disabled]="downloadingPdf() === 'assets/pdf/answers.pdf'"
+              class="relative inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-white text-teal-700 hover:bg-teal-50 border-2 border-teal-600 hover:border-teal-700 font-medium text-xs transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 active:scale-100"
+              (click)="openPreview('answers', 'إجابات الاختبارات السابقة', $event)"
+              title="معاينة الملف"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>معاينة</span>
+            </button>
+            <button
+              type="button"
+              class="relative inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 font-medium text-xs transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 active:scale-100 disabled:opacity-70 disabled:cursor-not-allowed"
+              (click)="downloadPdf('answers', 'إجابات الاختبارات السابقة', $event)"
+              [disabled]="downloadingPdf() === 'answers'"
               title="تنزيل ملف إجابات الاختبارات السابقة"
             >
-              @if (downloadingPdf() === 'assets/pdf/answers.pdf') {
-                <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              @if (downloadingPdf() === 'answers') {
+                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <span>جاري التنزيل...</span>
               } @else {
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
-                </svg>
+          </svg>
                 <span>تنزيل الملف</span>
               }
             </button>
@@ -237,24 +272,36 @@
               </p>
             </div>
           </div>
-          <div class="mt-6 flex items-center justify-center">
+          <div class="mt-6 flex items-center justify-center gap-2.5">
             <button
               type="button"
-              class="relative inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 font-semibold text-sm md:text-base transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-100 disabled:opacity-70 disabled:cursor-not-allowed"
-              (click)="downloadPdf('assets/pdf/map.pdf', 'خرائط ذهنية', $event)"
-              [disabled]="downloadingPdf() === 'assets/pdf/map.pdf'"
+              class="relative inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-white text-teal-700 hover:bg-teal-50 border-2 border-teal-600 hover:border-teal-700 font-medium text-xs transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 active:scale-100"
+              (click)="openPreview('map', 'خرائط ذهنية', $event)"
+              title="معاينة الملف"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>معاينة</span>
+            </button>
+            <button
+              type="button"
+              class="relative inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 font-medium text-xs transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 active:scale-100 disabled:opacity-70 disabled:cursor-not-allowed"
+              (click)="downloadPdf('map', 'خرائط ذهنية', $event)"
+              [disabled]="downloadingPdf() === 'map'"
               title="تنزيل ملف خرائط ذهنية"
             >
-              @if (downloadingPdf() === 'assets/pdf/map.pdf') {
-                <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              @if (downloadingPdf() === 'map') {
+                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <span>جاري التنزيل...</span>
               } @else {
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
-                </svg>
+          </svg>
                 <span>تنزيل الملف</span>
               }
             </button>
@@ -278,24 +325,36 @@
               </p>
             </div>
           </div>
-          <div class="mt-6 flex items-center justify-center">
+          <div class="mt-6 flex items-center justify-center gap-2.5">
             <button
               type="button"
-              class="relative inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 font-semibold text-sm md:text-base transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-100 disabled:opacity-70 disabled:cursor-not-allowed"
-              (click)="downloadPdf('assets/pdf/annancement.pdf', 'كراسة التمارين', $event)"
-              [disabled]="downloadingPdf() === 'assets/pdf/annancement.pdf'"
+              class="relative inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-white text-teal-700 hover:bg-teal-50 border-2 border-teal-600 hover:border-teal-700 font-medium text-xs transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105 active:scale-100"
+              (click)="openPreview('annancement', 'كراسة التمارين', $event)"
+              title="معاينة الملف"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>معاينة</span>
+            </button>
+            <button
+              type="button"
+              class="relative inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 font-medium text-xs transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 active:scale-100 disabled:opacity-70 disabled:cursor-not-allowed"
+              (click)="downloadPdf('annancement', 'كراسة التمارين', $event)"
+              [disabled]="downloadingPdf() === 'annancement'"
               title="تنزيل ملف كراسة التمارين"
             >
-              @if (downloadingPdf() === 'assets/pdf/annancement.pdf') {
-                <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              @if (downloadingPdf() === 'annancement') {
+                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <span>جاري التنزيل...</span>
               } @else {
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
-                </svg>
+          </svg>
                 <span>تنزيل الملف</span>
               }
             </button>
@@ -303,6 +362,98 @@
         </article>
       </div>
     </div>
+
+    <!-- PDF Preview Modal -->
+    @if (selectedPdf()) {
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+        (click)="closePreview()"
+        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; touch-action: none;"
+      >
+        <div
+          class="relative w-screen h-screen md:w-[92vw] md:h-[92vh] bg-white rounded-none md:rounded-3xl shadow-2xl flex flex-col animate-in zoom-in-95 duration-300"
+          (click)="$event.stopPropagation()"
+          style="touch-action: pan-y;"
+        >
+          <!-- Modal header -->
+          <div class="flex items-center justify-between px-5 py-4 md:px-6 md:py-5 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <div class="shrink-0 w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center">
+                <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+              </div>
+              <div class="flex flex-col gap-0.5 min-w-0 flex-1">
+                <p class="text-[10px] md:text-xs uppercase tracking-[0.2em] text-slate-500 font-medium">
+                  معاينة الملف
+                </p>
+                <p class="text-sm md:text-lg font-bold text-slate-900 truncate">
+                  {{ selectedPdfTitle() || 'المحتوى' }}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="inline-flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 w-9 h-9 transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+              (click)="closePreview()"
+              aria-label="إغلاق المعاينة"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Modal body -->
+          <div class="relative flex-1 bg-slate-50 overflow-hidden" style="touch-action: pan-y;">
+            @if (safePreviewUrl()) {
+              <div 
+                class="relative w-full h-full pdf-viewer-container" 
+                style="overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; touch-action: pan-y pinch-zoom; height: 100%;"
+              >
+                @if (previewLoading()) {
+                  <div class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/95 backdrop-blur-sm">
+                    <div class="relative">
+                      <div class="w-16 h-16 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin"></div>
+                      <div class="absolute inset-0 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                      </div>
+                    </div>
+                    <p class="mt-4 text-base font-semibold text-slate-700">
+                      جارٍ تحميل الملف...
+                    </p>
+                    <p class="mt-1 text-sm text-slate-500">
+                      يُرجى الانتظار قليلاً
+                    </p>
+                  </div>
+                }
+                <iframe
+                  [src]="safePreviewUrl()"
+                  class="w-full h-full border-0"
+                  style="width: 100%; height: 100%; min-height: 100vh; display: block; touch-action: pan-y pinch-zoom;"
+                  allowfullscreen
+                  webkitallowfullscreen
+                  mozallowfullscreen
+                  (load)="onPreviewLoaded()"
+                ></iframe>
+              </div>
+            } @else {
+              <div class="w-full h-full flex items-center justify-center p-6 text-center text-slate-700">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-12 h-12 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin"></div>
+                  <p class="text-sm md:text-base font-medium">
+                    جارٍ تحميل المعاينة...
+                  </p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
 
     <footer class="mt-16 mb-8">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
@@ -322,8 +473,8 @@
         <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
           <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">مديرة المدرسة</p>
           <p class="text-base md:text-lg font-semibold text-slate-900">أ. وردة العازمي</p>
-        </div>
-      </div>
+    </div>
+  </div>
     </footer>
   </section>
 </main>
