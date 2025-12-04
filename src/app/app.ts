@@ -41,10 +41,10 @@ export class App implements OnInit {
 
   private async preloadPdfs(): Promise<void> {
     this.preloadingPdfs.set(true);
-    const totalPdfs = this.pdfPaths.length;
+    let firstFileLoaded = false;
 
-    // Load all PDFs using fetch API to ensure they're cached in memory
-    const loadPromises = this.pdfPaths.map(async (path) => {
+    // Load PDFs in parallel - each file becomes available as soon as it loads (lazy loading)
+    this.pdfPaths.forEach(async (path) => {
       try {
         // Fetch the PDF file
         const response = await fetch(path);
@@ -63,9 +63,17 @@ export class App implements OnInit {
         const pdfUrl = `${blobUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
         const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
         
-        // Store in cache - now the PDF is loaded in memory and ready to use
+        // Store in cache - PDF is now available immediately for use
         this.pdfCache.set(path, safeUrl);
         this.pdfLoadedStatus.set(path, true);
+        
+        // Hide loader after first file loads (lazy loading - files available as they load)
+        if (!firstFileLoaded) {
+          firstFileLoaded = true;
+          setTimeout(() => {
+            this.preloadingPdfs.set(false);
+          }, 500);
+        }
       } catch (error) {
         console.error(`Error loading PDF ${path}:`, error);
         // Fallback: use original URL if fetch fails
@@ -73,23 +81,23 @@ export class App implements OnInit {
         const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
         this.pdfCache.set(path, safeUrl);
         this.pdfLoadedStatus.set(path, true);
+        
+        // Hide loader if this is the first file (even if it failed)
+        if (!firstFileLoaded) {
+          firstFileLoaded = true;
+          setTimeout(() => {
+            this.preloadingPdfs.set(false);
+          }, 500);
+        }
       }
     });
-
-    // Wait for all PDFs to load
-    await Promise.allSettled(loadPromises);
     
-    // All PDFs are now loaded in memory, hide loader
-    setTimeout(() => {
-      this.preloadingPdfs.set(false);
-    }, 300);
-    
-    // Fallback: hide loader after max 10 seconds even if some failed
+    // Fallback: hide loader after max 3 seconds even if no files loaded yet
     setTimeout(() => {
       if (this.preloadingPdfs()) {
         this.preloadingPdfs.set(false);
       }
-    }, 10000);
+    }, 3000);
   }
 
   private toggleBodyScroll(locked: boolean): void {
@@ -106,22 +114,60 @@ export class App implements OnInit {
     this.selectedPdf.set(path);
     this.selectedPdfTitle.set(title);
     
-    // Always use cached PDF from Blob URL - it's already loaded in memory
+    // Check if PDF is already loaded in cache
     const cachedUrl = this.pdfCache.get(path);
-    if (cachedUrl) {
-      // PDF is already loaded as Blob, use it directly - no need to reload
+    const isLoaded = this.pdfLoadedStatus.get(path);
+    
+    if (cachedUrl && isLoaded) {
+      // PDF is already loaded as Blob in memory, use it directly - instant display
       this.safePdfUrl.set(cachedUrl);
-      this.pdfLoading.set(false); // Already loaded in memory, instant display
-    } else {
-      // Fallback: if not in cache yet, show loader and wait
-      const pdfUrl = `${path}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
-      const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
-      this.pdfCache.set(path, safeUrl);
-      this.safePdfUrl.set(safeUrl);
+      this.pdfLoading.set(false);
+    } else if (cachedUrl) {
+      // PDF URL is cached but still loading, use it and show loader briefly
+      this.safePdfUrl.set(cachedUrl);
       this.pdfLoading.set(true);
+    } else {
+      // PDF not in cache yet - load it on demand (lazy load)
+      this.loadPdfOnDemand(path);
     }
     
     this.toggleBodyScroll(true);
+  }
+
+  private async loadPdfOnDemand(path: string): Promise<void> {
+    this.pdfLoading.set(true);
+    
+    try {
+      // Fetch the PDF file
+      const response = await fetch(path);
+      if (!response.ok) {
+        throw new Error(`Failed to load ${path}`);
+      }
+      
+      // Convert to Blob
+      const blob = await response.blob();
+      
+      // Create Blob URL
+      const blobUrl = URL.createObjectURL(blob);
+      this.pdfBlobUrls.set(path, blobUrl);
+      
+      // Create safe URL with PDF viewer parameters
+      const pdfUrl = `${blobUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
+      const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
+      
+      // Store in cache
+      this.pdfCache.set(path, safeUrl);
+      this.pdfLoadedStatus.set(path, true);
+      this.safePdfUrl.set(safeUrl);
+    } catch (error) {
+      console.error(`Error loading PDF ${path}:`, error);
+      // Fallback: use original URL
+      const pdfUrl = `${path}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
+      const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
+      this.pdfCache.set(path, safeUrl);
+      this.pdfLoadedStatus.set(path, true);
+      this.safePdfUrl.set(safeUrl);
+    }
   }
 
   closePdf(): void {
