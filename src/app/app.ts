@@ -1,4 +1,4 @@
-import { Component, Inject, signal } from '@angular/core';
+import { Component, Inject, OnInit, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
@@ -8,17 +8,48 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   templateUrl: 'app.html',
   styleUrl: './app.css',
 })
-export class App {
+export class App implements OnInit {
   protected readonly title = signal('math');
   protected readonly selectedPdf = signal<string | null>(null);
   protected readonly selectedPdfTitle = signal<string | null>(null);
   protected readonly safePdfUrl = signal<SafeResourceUrl | null>(null);
   protected readonly pdfLoading = signal<boolean>(false);
+  
+  // Cache for preloaded PDFs
+  private readonly pdfCache = new Map<string, SafeResourceUrl>();
+  private readonly pdfPaths = [
+    'assets/pdf/tests.pdf',
+    'assets/pdf/culclim.pdf',
+    'assets/pdf/math.pdf',
+    'assets/pdf/answers.pdf',
+    'assets/pdf/map.pdf',
+    'assets/pdf/annancement.pdf',
+  ];
 
   constructor(
     private readonly sanitizer: DomSanitizer,
     @Inject(DOCUMENT) private readonly document: Document,
   ) {}
+
+  ngOnInit(): void {
+    // Preload all PDFs when component initializes
+    this.preloadPdfs();
+  }
+
+  private preloadPdfs(): void {
+    this.pdfPaths.forEach((path) => {
+      const pdfUrl = `${path}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
+      const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
+      this.pdfCache.set(path, safeUrl);
+      
+      // Preload the PDF file in the background
+      const link = this.document.createElement('link');
+      link.rel = 'prefetch';
+      link.as = 'document';
+      link.href = path;
+      this.document.head.appendChild(link);
+    });
+  }
 
   private toggleBodyScroll(locked: boolean): void {
     if (locked) {
@@ -33,14 +64,22 @@ export class App {
   openPdf(path: string, title: string): void {
     this.selectedPdf.set(path);
     this.selectedPdfTitle.set(title);
-    // Add PDF viewer parameters optimized for mobile devices
-    // view=FitH: fit horizontally, zoom=page-width: better mobile viewing
-    const pdfUrl = `${path}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
-    this.safePdfUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl));
-    this.pdfLoading.set(true);
-    this.toggleBodyScroll(true);
     
-    // Prevent iOS bounce scrolling - handled by CSS class
+    // Use cached PDF if available, otherwise create new one
+    const cachedUrl = this.pdfCache.get(path);
+    if (cachedUrl) {
+      this.safePdfUrl.set(cachedUrl);
+      this.pdfLoading.set(false); // Already loaded, no need to show loader
+    } else {
+      // Fallback: create new URL if not in cache
+      const pdfUrl = `${path}#toolbar=0&navpanes=0&scrollbar=1&view=FitH&zoom=page-width`;
+      const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(pdfUrl);
+      this.pdfCache.set(path, safeUrl);
+      this.safePdfUrl.set(safeUrl);
+      this.pdfLoading.set(true);
+    }
+    
+    this.toggleBodyScroll(true);
   }
 
   closePdf(): void {
