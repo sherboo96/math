@@ -40,9 +40,10 @@ export class App {
     
     const fileId = this.googleDriveFiles.get(fileKey);
     if (fileId) {
-      // Save current scroll position
-      this.scrollPosition = window.pageYOffset || this.document.documentElement.scrollTop;
+      // Save current scroll position before any changes
+      this.scrollPosition = window.pageYOffset || this.document.documentElement.scrollTop || 0;
       
+      // Set PDF data first
       this.selectedPdf.set(fileId);
       this.selectedPdfTitle.set(title);
       this.previewLoading.set(true);
@@ -51,12 +52,19 @@ export class App {
       const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
       this.safePreviewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(previewUrl));
       
-      // Lock body scroll
-      this.document.body.classList.add('modal-open');
-      this.document.body.style.overflow = 'hidden';
-      this.document.body.style.position = 'fixed';
-      this.document.body.style.width = '100%';
-      this.document.body.style.top = `-${this.scrollPosition}px`;
+      // Lock body scroll - use setTimeout to prevent blocking
+      setTimeout(() => {
+        this.document.body.classList.add('modal-open');
+        this.document.body.style.overflow = 'hidden';
+        
+        // Only apply fixed positioning on mobile
+        if (window.innerWidth <= 768) {
+          this.document.body.style.position = 'fixed';
+          this.document.body.style.width = '100%';
+          this.document.body.style.top = `-${this.scrollPosition}px`;
+          this.document.body.style.left = '0';
+        }
+      }, 0);
     }
   }
 
@@ -66,25 +74,38 @@ export class App {
       event.stopPropagation();
     }
     
+    // Clear PDF data first
     this.selectedPdf.set(null);
     this.selectedPdfTitle.set(null);
     this.safePreviewUrl.set(null);
     this.previewLoading.set(false);
     
-    // Restore body scroll and remove all modal styles
-    this.document.body.classList.remove('modal-open');
-    this.document.body.style.overflow = '';
-    this.document.body.style.position = '';
-    this.document.body.style.width = '';
-    this.document.body.style.top = '';
-    this.document.body.style.height = '';
-    this.document.body.style.left = '';
-    this.document.body.style.right = '';
-    this.document.body.style.bottom = '';
-    
-    // Restore scroll position
-    window.scrollTo(0, this.scrollPosition);
-    this.scrollPosition = 0;
+    // Restore body scroll - use setTimeout to prevent blocking
+    setTimeout(() => {
+      // Remove modal class first
+      this.document.body.classList.remove('modal-open');
+      
+      // Clear all inline styles
+      this.document.body.style.overflow = '';
+      this.document.body.style.position = '';
+      this.document.body.style.width = '';
+      this.document.body.style.top = '';
+      this.document.body.style.height = '';
+      this.document.body.style.left = '';
+      this.document.body.style.right = '';
+      this.document.body.style.bottom = '';
+      
+      // Restore scroll position after styles are cleared
+      setTimeout(() => {
+        if (this.scrollPosition > 0) {
+          window.scrollTo({
+            top: this.scrollPosition,
+            behavior: 'auto'
+          });
+        }
+        this.scrollPosition = 0;
+      }, 50);
+    }, 0);
   }
 
   onPreviewLoaded(): void {
